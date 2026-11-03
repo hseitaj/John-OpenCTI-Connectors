@@ -3,4 +3,4 @@ pyyaml
 requests
 beautifulsoup4
 weasyprint
-playwright
+playwright==1.63.0

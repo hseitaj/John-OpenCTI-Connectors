@@ -18,6 +18,7 @@ Two read paths answer differently on purpose:
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from typing import Any
 
@@ -88,8 +89,20 @@ class FakeApi:
         return FakeEntity(self._helper, name)
 
     def query(self, query, variables=None, *args, **kwargs):
+        """Raw GraphQL: a mutation returns the object it created; ``me`` is the connector user."""
         self._helper.calls.append(("api.query", (), {"query": query, "variables": variables}))
-        return AutoDict(data=AutoDict())
+        data = AutoDict()
+        text = " ".join(str(query).split())
+        mutation = re.match(r"mutation\b[^{]*\{\s*(\w+)", text)
+        if mutation:
+            inp = (variables or {}).get("input") or {}
+            oid = str(uuid.uuid4())
+            data[mutation.group(1)] = AutoDict(id=oid, standard_id=f"identity--{oid}",
+                                               name=inp.get("name", "created"), entity_type="Organization")
+            self._helper._count_write() if "report" in mutation.group(1).lower() else None
+        elif re.search(r"\bme\s*\{", text):
+            data["me"] = AutoDict(id=str(uuid.uuid4()), name="connector-user", entity_type="User")
+        return AutoDict(data=data)
 
     def fetch_opencti_file(self, *args, **kwargs):
         self._helper.calls.append(("api.fetch_opencti_file", args, kwargs))
@@ -196,6 +209,8 @@ class FakeHelper:
     def _api_call(self, entity: str, method: str, args, kwargs):
         self.calls.append((f"api.{entity}.{method}", args, kwargs))
         if entity == "marking_definition" and method in ("read", "list"):
+            if method == "list" and not any(name in json.dumps(kwargs) for name in TLP_IDS):
+                return [_marking({"definition": name}) for name in TLP_IDS]  # unfiltered: every TLP
             marking = _marking(kwargs)
             return [marking] if method == "list" else marking
         if entity == "stix2" and method == "get_stix_bundle_or_object_from_entity_id":

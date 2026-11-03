@@ -27,7 +27,7 @@ services:
       - BELLINGCAT_BASE_URL=https://www.bellingcat.com
       # Category SLUGS to ingest. Provisional: confirm against
       # /wp-json/wp/v2/categories on first deploy. Unresolved slugs are skipped.
-      - BELLINGCAT_CATEGORIES=news,open-source-in-short,resources
+      - BELLINGCAT_ARCHIVES=/category/news/,/category/resources/,/tag/open-source-in-short/  # archive paths to walk
       - BELLINGCAT_POLL_INTERVAL=21600     # seconds between full enumeration runs (6h)
       - BELLINGCAT_REQUEST_DELAY=3         # seconds between successive renders
       - BELLINGCAT_MAX_POSTS=0             # 0 = unlimited; set to 3 for a bounded test run

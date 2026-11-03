@@ -9,7 +9,11 @@
  },
  "CrowdStrikeIntelReports": {
   "entry": "src/main.py",
-  "container": "/opt/opencti-connector-crowdstrike-intel-reports/main.py"
+  "container": "/opt/opencti-connector-crowdstrike-intel-reports/main.py",
+  "platform_has": [
+   "stix_domain_object"
+  ],
+  "note": "expects an Organization named 'CrowdStrike' in the platform; refuses to start otherwise"
  },
  "ObservableGate": {
   "entry": "src/main.py",
@@ -26,7 +30,12 @@
  "akamai_ddos": {
   "entry": "src/main.py",
   "container": "/opt/connector/src/main.py",
-  "module": "src.main"
+  "module": "src.main",
+  "env": {
+   "AKAMAI_HOST": "akab-test.luna.akamaiapis.net",
+   "AKAMAI_PROLEXIC_CONTRACT": "TEST-CONTRACT",
+   "AKAMAI_SIEM_CONFIG_IDS": "12345"
+  }
  },
  "arxiv": {
   "entry": "main.py",
@@ -50,7 +59,12 @@
  },
  "cis_pdf": {
   "entry": "src/main.py",
-  "container": "/opt/connector/src/main.py"
+  "container": "/opt/connector/src/main.py",
+  "env": {
+   "CIS_SEED_FILE": "{dir}/seeds_urls.txt",
+   "CIS_STATE_DIR": "{tmp}/state",
+   "CIS_DOWNLOAD_DIR": "{tmp}/downloads"
+  }
  },
  "connector-ic-reports": {
   "entry": "src/main.py",
@@ -73,7 +87,11 @@
  },
  "feedly": {
   "entry": "main.py",
-  "container": "/opt/opencti-feedly-connector/main.py"
+  "container": "/opt/opencti-feedly-connector/main.py",
+  "env": {
+   "FEEDLY_API_KEY": "test-feedly-api-key",
+   "FEEDLY_STREAM_IDS": "user/test/category/test"
+  }
  },
  "gti": {
   "entry": "src/gti.py",
@@ -125,7 +143,11 @@
  },
  "nsa_tnw": {
   "entry": "src/connector.py",
-  "container": "/opt/connector/src/connector.py"
+  "container": "/opt/connector/src/connector.py",
+  "env": {
+   "TNW_LISTING_URL": "https://www.nsa.gov/Research/The-Next-Wave/",
+   "NSA_STATE_PATH": "{tmp}/state.json"
+  }
  },
  "openalex_import": {
   "skip": "empty Dockerfile, connector.py and docker-compose.yml (unfinished skeleton)"

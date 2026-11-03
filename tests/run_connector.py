@@ -168,7 +168,8 @@ def main() -> None:
         cdir = assemble(spec)
     entry = cdir / spec["entry"]
     env = compose_env(CONNECTORS / args.name)
-    env.update(spec.get("env", {}))
+    scratch = __import__("tempfile").mkdtemp(prefix=f"{args.name}-")
+    env.update({k: v.format(dir=CONNECTORS / args.name, tmp=scratch) for k, v in spec.get("env", {}).items()})
     env.update(dict(e.split("=", 1) for e in args.env))
     if spec.get("path_map"):
         map_paths({k: str(CONNECTORS / args.name / v) for k, v in spec["path_map"].items()})
@@ -218,18 +219,35 @@ def main() -> None:
         "helper_built": helper is not None,
         "listening": bool(helper and (helper.listen_callback or helper.scheduled)),
         "network_attempts": attempts[:3],
-        "reports": sum(1 for c in calls if c[0] == "api.report.create"),
+        "reports": sum(1 for c in calls if c[0] == "api.report.create"
+                       or (c[0] == "api.query" and "reportAdd" in str(c[2].get("query")))),
         "bundles": len(helper.bundles) if helper else 0,
         "bundle_objects": sum(len(b.get("objects", [])) for b in (helper.bundles if helper else [])),
         "files": sum(1 for c in calls if c[0].endswith(".add_file")),
         "calls": len(calls),
         "call_names": sorted({c[0] for c in calls}),
-        "errors": [e[:300] for e in errors[:5]],
+        "errors": [e[-1500:] for e in errors[:5]],
+        "log_tail": [f"{lvl}: {m[:200]}{(' ' + json.dumps(meta, default=str)[:300]) if meta else ''}"
+                     for lvl, m, meta in (helper.logs if helper else [])[-12:]],
         "stdout": out.getvalue()[-1500:],
         "stderr": err.getvalue()[-1500:],
         "slept": slept[:5],
     }
+    result["ok"] = passed(result)
     sys.__stdout__.write("RESULT " + json.dumps(result) + "\n")
+
+
+def passed(result: dict) -> bool:
+    """Did the connector run cleanly as far as this mode can take it?"""
+    text = (result["stdout"] + result["stderr"]).lower()
+    if result["errors"] or "traceback" in text or "fatal" in text:
+        return False
+    if result["mode"] == "live":
+        # A live run has to write something: a cycle that "completes" with zero
+        # reports is how a dead source looks (Defense One ingested 0 of 19).
+        return bool(result["reports"] or result["bundles"])
+    # boot: reached the network, registered a listener/schedule, or finished a cycle and went to sleep
+    return result["outcome"] in ("network", "returned", "sleep")
 
 
 if __name__ == "__main__":

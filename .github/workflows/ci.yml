@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      build_all:
+        description: Build every connector image, not just the changed ones
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint + boot every connector + unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: tests/requirements.txt
+      - name: System libraries (python-magic, WeasyPrint)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libmagic1 libpango-1.0-0 libpangoft2-1.0-0
+      - name: Install
+        run: pip install -r tests/requirements.txt ruff
+      - name: Lint (syntax errors and undefined names)
+        run: ruff check connectors scripts tests --select E9,F63,F7,F82,PLE2510 --output-format github
+      - name: Tests
+        run: python -m pytest tests -q -p no:cacheprovider
+
+  changed:
+    name: Which connector images to build
+    runs-on: ubuntu-latest
+    outputs:
+      connectors: ${{ steps.pick.outputs.connectors }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: pick
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          ALL: ${{ inputs.build_all }}
+        run: |
+          all=$(python3 -c "import json;print(json.dumps(sorted(k for k,v in json.load(open('tests/connectors.json')).items() if 'skip' not in v)))")
+          if [ "$ALL" = "true" ] || [ -z "$BASE" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
+            echo "connectors=$all" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          changed=$(git diff --name-only "$BASE" HEAD)
+          # Shared code feeds every image.
+          if echo "$changed" | grep -qE '^connectors/microservices/'; then
+            echo "connectors=$all" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          picked=$(echo "$changed" | sed -nE 's#^connectors/([^/]+)/.*#\1#p' | sort -u)
+          # report_enrichment's image also carries report_model_qa modules.
+          echo "$picked" | grep -qx report_model_qa && picked=$(printf '%s\nreport_enrichment' "$picked")
+          echo "connectors=$(ALLJSON="$all" PICKED="$picked" python3 -c "import json,os;a=json.loads(os.environ['ALLJSON']);p=set(os.environ['PICKED'].split());print(json.dumps([c for c in a if c in p]))")" >> "$GITHUB_OUTPUT"
+
+  image:
+    name: Build ${{ matrix.connector }}
+    needs: changed
+    if: needs.changed.outputs.connectors != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        connector: ${{ fromJSON(needs.changed.outputs.connectors) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image the way compose does
+        run: |
+          c=connectors/${{ matrix.connector }}
+          if grep -qE '^\s+context:\s*\.\.\s*$' "$c/docker-compose.yml" 2>/dev/null; then
+            docker build -t check -f "$c/Dockerfile" connectors
+          else
+            docker build -t check --build-context microservices=connectors/microservices "$c"
+          fi
+      - name: Entrypoint imports inside the image
+        run: python3 tests/image_probe.py ${{ matrix.connector }} check

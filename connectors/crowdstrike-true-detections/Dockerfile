@@ -1,4 +1,5 @@
-FROM python:3.9-alpine
+# python:3.9 reached end of life in October 2025; 3.11 matches the other connectors.
+FROM python:3.11-alpine
 
 # Copy the connector
 COPY src/ /opt/opencti-connector-crowdstrike-true-detections

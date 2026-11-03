@@ -32,7 +32,7 @@ services:
       # ── QA output ─────────────────────────────────────────────────────────
       - QA_WRITE_NOTE=${QA_WRITE_NOTE:-true}
       - QA_ATTACH_JSON=${QA_ATTACH_JSON:-false}
-      - QA_NOTE_MAX_ROWS=${QA_NOTE_MAX_ROWS:-50}
+      - QA_NOTE_MAX_FINDINGS=${QA_NOTE_MAX_FINDINGS:-50}
       - QA_FAIL_ON_BLOCKERS=${QA_FAIL_ON_BLOCKERS:-true}
 
       # ── Entity Knowledge Base ──────────────────────────────────────────────
