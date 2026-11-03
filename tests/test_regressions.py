@@ -95,3 +95,52 @@ def test_cve_connector_reads_the_documented_api_key(monkeypatch):
     assert connector.nvd_api_key == "nvd-key"
     assert connector.report_marking_name == "TLP:CLEAR"
     assert connector.marking_definition_stix_id  # resolved, so reports are never unmarked
+
+
+def _module(name: str, connector: str):
+    import fake_opencti
+
+    fake_opencti.install()
+    return load(CONNECTORS / connector / "main.py", name)
+
+
+def test_defense_one_reads_double_escaped_feed_content():
+    # The feed escapes the CDATA wrapper itself; feedparser then returned empty
+    # content and every item failed with "No content:encoded".
+    import feedparser
+
+    mod = _module("d1_main", "defense_one")
+    feed = ('<rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><item>'
+            "<title>t</title><link>https://www.defenseone.com/a/1/</link>"
+            "<content:encoded>&lt;![CDATA[&lt;p&gt;Full article text&lt;/p&gt;]]&gt;</content:encoded>"
+            "</item></channel></rss>")
+    entry = feedparser.parse(mod._repair_double_escaped_cdata(feed)).entries[0]
+    assert "Full article text" in entry.content[0].value
+    good = "<content:encoded><![CDATA[<p>ok</p>]]></content:encoded>"
+    assert mod._repair_double_escaped_cdata(good) == good
+
+
+def test_brookings_reads_topics_from_acf():
+    # Topic IDs moved to acf.helper_taxonomies.topics; the filter rejected everything.
+    mod = _module("brookings_main", "brookings_institution")
+    assert mod._topics({"acf": {"helper_taxonomies": {"topics": [69, 153]}}}) == [69, 153]
+    assert mod._topics({"topics": [69]}) == [69]
+    assert mod._topics({"acf": False}) == []
+    assert "acf.helper_taxonomies.topics" in mod.LISTING_FIELDS
+
+
+def test_who_does_not_select_the_removed_summary_property():
+    source = (CONNECTORS / "world_health_organization" / "main.py").read_text()
+    select = [line for line in source.splitlines() if '"$select"' in line]
+    assert select and "Summary" not in select[0]
+
+
+def test_occrp_finds_content_on_redesigned_pages():
+    from bs4 import BeautifulSoup
+
+    mod = _module("occrp_main", "organized_crime_corruption_reporting")
+    html = ('<html><body><section class="section-base"><div class="content-generator">'
+            '<div class="wp-wysiwyg"><p>Body text of a redesigned OCCRP page.</p></div>'
+            "</div></section></body></html>")
+    content = mod.OccrpConnector._extract_content(BeautifulSoup(html, "lxml"))
+    assert content and "Body text" in str(content)

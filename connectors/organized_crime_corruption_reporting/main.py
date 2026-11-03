@@ -88,6 +88,11 @@ ARTICLE_SITEMAP_PREFIX = "sitemap_articles_"
 CONTENT_SELECTORS = [
     ".article-template__content-generator",
     ".article-template__content",
+    # Pages on the redesigned site (late 2026) have no <article> or
+    # article-template wrapper; the body sits in .content-generator. Without
+    # these, 207 of 208 pages failed with "No article content container found".
+    ".content-generator",
+    ".wp-wysiwyg",
     "article .content",
     "article",
 ]
