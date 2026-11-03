@@ -245,7 +245,10 @@ def passed(result: dict) -> bool:
     if result["mode"] == "live":
         # A live run has to write something: a cycle that "completes" with zero
         # reports is how a dead source looks (Defense One ingested 0 of 19).
-        return bool(result["reports"] or result["bundles"])
+        # ...and end the way a healthy cycle ends: the write cap, its poll sleep,
+        # or a normal return. Writing and then crashing is not a pass.
+        return result["outcome"] in ("write-cap", "sleep", "returned") and bool(
+            result["reports"] or result["bundles"])
     # boot: reached the network, registered a listener/schedule, or finished a cycle and went to sleep
     return result["outcome"] in ("network", "returned", "sleep")
 

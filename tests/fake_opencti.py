@@ -187,9 +187,9 @@ class FakeHelper:
     # -- bundles ---------------------------------------------------------
     @staticmethod
     def stix2_create_bundle(items):
-        from pycti import OpenCTIConnectorHelper
-
-        return OpenCTIConnectorHelper.stix2_create_bundle(items)
+        # The real implementation, kept by install(): after the swap,
+        # pycti.OpenCTIConnectorHelper is this class and would recurse.
+        return _REAL_HELPER.stix2_create_bundle(items)
 
     def send_stix2_bundle(self, bundle, *args, **kwargs):
         parsed = json.loads(bundle) if isinstance(bundle, str) else bundle
@@ -264,8 +264,14 @@ class _Anything:
         return self
 
 
+_REAL_HELPER = None
+
+
 def install() -> None:
     """Swap pycti's helper for the fake (before importing a connector)."""
+    global _REAL_HELPER
     import pycti
 
+    if pycti.OpenCTIConnectorHelper is not FakeHelper:
+        _REAL_HELPER = pycti.OpenCTIConnectorHelper
     pycti.OpenCTIConnectorHelper = FakeHelper

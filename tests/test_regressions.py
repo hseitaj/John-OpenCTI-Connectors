@@ -144,3 +144,27 @@ def test_occrp_finds_content_on_redesigned_pages():
             "</div></section></body></html>")
     content = mod.OccrpConnector._extract_content(BeautifulSoup(html, "lxml"))
     assert content and "Body text" in str(content)
+
+
+def test_fake_helper_builds_real_bundles():
+    # Once installed, the fake must still serialize bundles with pycti's own code
+    # (it used to call itself until RecursionError).
+    import json as _json
+
+    import fake_opencti
+    import stix2
+
+    fake_opencti.install()
+    fake_opencti.install()  # idempotent: the real implementation is kept
+    bundle = _json.loads(fake_opencti.FakeHelper.stix2_create_bundle(
+        [stix2.Identity(name="x", identity_class="organization")]))
+    assert bundle["type"] == "bundle" and len(bundle["objects"]) == 1
+
+
+def test_live_run_that_crashes_after_writing_does_not_pass():
+    import run_connector
+
+    base = {"mode": "live", "stdout": "", "stderr": "", "errors": [], "reports": 1, "bundles": 0}
+    assert run_connector.passed({**base, "outcome": "write-cap"})
+    assert not run_connector.passed({**base, "outcome": "exception"})
+    assert not run_connector.passed({**base, "outcome": "exit"})
