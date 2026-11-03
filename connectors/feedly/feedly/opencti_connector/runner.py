@@ -1,3 +1,4 @@
+import traceback
 import time
 from datetime import datetime, timedelta
 
@@ -64,8 +65,10 @@ class FeedlyRunner:
 
             self._update_state(state, stream_id, last_article_publish_date, now)
         except Exception as e:
-            error_message = f"Failed {run_name} ({e})"
-            self.helper.log_error(error_message)
+            # Some client errors (e.g. Feedly auth failures) have an empty message;
+            # name the type and keep the traceback so a failed run says why.
+            error_message = f"Failed {run_name} ({type(e).__name__}: {e})"
+            self.helper.log_error(error_message, {"traceback": traceback.format_exc()[-2000:]})
             self.helper.api.work.to_processed(
                 self.helper.work_id, error_message, in_error=True
             )

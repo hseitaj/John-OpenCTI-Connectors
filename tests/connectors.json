@@ -139,7 +139,10 @@
  },
  "migration_policy_institute": {
   "entry": "main.py",
-  "container": "/app/main.py"
+  "container": "/app/main.py",
+  "env": {
+   "MPI_MAX_REPORTS": "1"
+  }
  },
  "newsapi_connector": {
   "entry": "main.py",
