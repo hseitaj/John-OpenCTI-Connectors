@@ -3,4 +3,4 @@ pyyaml
 requests
 curl_cffi
 beautifulsoup4
-weasyprint
+weasyprint==63.1

@@ -103,6 +103,20 @@ def test_pycti_matches_the_platform(name):
                 assert f"@{PLATFORM_PYCTI}#" in line, f"{req}: connectors-sdk not at {PLATFORM_PYCTI}"
 
 
+@pytest.mark.parametrize("name", ACTIVE)
+def test_weasyprint_is_pinned_below_70(name):
+    # microservices/make_pdf.py passes WeasyPrint a function url_fetcher returning
+    # dicts and calls weasyprint.default_url_fetcher. WeasyPrint 70 removed both
+    # (fetchers must return URLFetcherResponse), so an unpinned install fails
+    # every render that loads an image (OCCRP: 474 of 474 articles).
+    for req in (CONNECTORS / name).rglob("requirements*.txt"):
+        for line in req.read_text().splitlines():
+            line = line.split("#")[0].strip()
+            if re.match(r"(?i)weasyprint\b", line):
+                m = re.match(r"(?i)weasyprint==(\d+)", line)
+                assert m and int(m.group(1)) < 70, f"{req}: {line!r} must pin a WeasyPrint release below 70"
+
+
 @pytest.mark.parametrize("name", [n for n in ACTIVE if (CONNECTORS / n / "docker-compose.yml").exists()])
 def test_compose_documents_only_variables_the_code_reads(name):
     sources = list((CONNECTORS / name).rglob("*.py")) + list((CONNECTORS / "microservices").rglob("*.py"))

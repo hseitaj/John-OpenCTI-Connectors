@@ -2,5 +2,5 @@ pycti==6.9.13
 pyyaml
 requests
 beautifulsoup4
-weasyprint
+weasyprint==63.1
 playwright==1.63.0
