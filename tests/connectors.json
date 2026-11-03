@@ -75,7 +75,11 @@
  },
  "crowdstrike-true-detections": {
   "entry": "src/main.py",
-  "container": "/opt/opencti-connector-crowdstrike-true-detections/main.py"
+  "container": "/opt/opencti-connector-crowdstrike-true-detections/main.py",
+  "platform_has": [
+   "identity"
+  ],
+  "note": "expects the CrowdStrike organization and a 'Crowdstrike Endpoint Detection' identity in the platform; refuses to start otherwise"
  },
  "defense_one": {
   "entry": "main.py",
