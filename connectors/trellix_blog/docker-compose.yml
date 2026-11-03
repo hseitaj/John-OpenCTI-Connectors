@@ -5,7 +5,10 @@
 version: '3'
 services:
   trellix_blog:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-trellix-blog
     environment:
       # --- OpenCTI platform connection ---

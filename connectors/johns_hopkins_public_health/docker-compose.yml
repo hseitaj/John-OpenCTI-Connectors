@@ -6,7 +6,10 @@
 version: '3'
 services:
   johns-hopkins-public-health:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-johns-hopkins-public-health
     environment:
       # --- OpenCTI platform connection ---

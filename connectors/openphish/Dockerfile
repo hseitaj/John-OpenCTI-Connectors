@@ -1,44 +1,26 @@
-FROM python:3.11.1-bullseye as base
-FROM base as builder
+# python:3.11.1-bullseye (Debian 11, end of life August 2026) no longer builds:
+# its security archive is gone, so apt-get upgrade fails. Same layout as the
+# other connectors now: current slim base, one apt layer, non-root user.
+# Chromium was installed here but this connector never renders pages.
+FROM python:3.11-slim-bookworm
 
-# Run linux updates and package upgrades
-RUN apt-get update -y
-RUN apt-get upgrade -y
-
-RUN adduser --disabled-password --gecos '' openphish
+# libmagic1: python-magic (a pycti dependency) loads it at import time.
+RUN apt-get update && apt-get install -y --no-install-recommends libmagic1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && adduser --disabled-password --gecos '' openphish
 
 WORKDIR /home/openphish/
-# Install pip
-RUN apt-get install pip -y
 
-# Copy requirements and entrypoint to the working directory
 COPY src/requirements.txt /home/openphish/requirements.txt
-COPY entrypoint.sh /home/openphish/entrypoint.sh
-COPY src/main.py /home/openphish/src/main.py
-COPY src/config.yml /home/openphish/src/config.yml
-COPY src/client.py /home/openphish/src/client.py
+RUN pip install --no-cache-dir -r requirements.txt
 
-# provide execution perfmissions to the entrypoint file
-RUN  chmod +x entrypoint.sh
+COPY src/main.py src/client.py src/config.yml /home/openphish/src/
 
-# Install python dependencies
-RUN pip3 install -r requirements.txt
-
-# Upgrade pip
-RUN pip3 install --upgrade pip
-
-# install chromium dependencies
-RUN apt-get install -y libglib2.0-0 \
-    libnss3 \
-    libgconf-2-4 \
-    libfontconfig1
-
-
-# install chromium
-RUN apt-get install chromium -y
+# Shared helpers from connectors/microservices (report classification).
+# docker compose passes them as the "microservices" build context; a plain
+# build needs: docker build --build-context microservices=../microservices .
+COPY --from=microservices . /opt/shared/microservices
+ENV PYTHONPATH="/opt/shared"
 
 USER openphish
-RUN ls -al /home/openphish/src
-
-# Expose the entrypoint
 ENTRYPOINT ["python3", "/home/openphish/src/main.py"]

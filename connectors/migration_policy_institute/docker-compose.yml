@@ -5,7 +5,10 @@
 version: '3'
 services:
   migration_policy_institute:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-migration-policy-institute
     environment:
       # --- OpenCTI platform connection ---

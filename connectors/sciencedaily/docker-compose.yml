@@ -5,7 +5,10 @@
 version: '3'
 services:
   sciencedaily:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-sciencedaily
     environment:
       # --- OpenCTI platform connection ---

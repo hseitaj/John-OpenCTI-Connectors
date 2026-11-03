@@ -196,16 +196,18 @@ class TestSendBundle(unittest.TestCase):
 
     def test_empty_bundle(self):
         builder = _make_builder("IPv4-Addr")
-        result = builder.send_bundle()
-        self.assertEqual(result, "No enrichment data to send.")
+        summary, ids = builder.send_bundle()  # (summary, new STIX ids)
+        self.assertEqual(summary, "No enrichment data to send.")
+        self.assertEqual(ids, [])
 
     def test_sends_bundle(self):
         builder = _make_builder("IPv4-Addr")
         builder.create_assessment_note("malicious", [], [], [])
         builder.helper.stix2_create_bundle.return_value = '{"objects":[]}'
         builder.helper.send_stix2_bundle.return_value = ["bundle-1"]
-        result = builder.send_bundle()
-        self.assertIn("1 bundle(s)", result)
+        summary, ids = builder.send_bundle()
+        self.assertIn("1 bundle(s)", summary)
+        self.assertTrue(ids)
         builder.helper.send_stix2_bundle.assert_called_once()
 
     def test_grouping_contains_all_objects(self):

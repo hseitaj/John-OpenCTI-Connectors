@@ -1,6 +1,9 @@
 services:
   regional-cybersecurity:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     restart: always
     environment:
       - OPENCTI_URL=

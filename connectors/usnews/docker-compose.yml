@@ -5,7 +5,10 @@
 version: '3'
 services:
   usnews:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-usnews
     environment:
       # --- OpenCTI platform connection ---

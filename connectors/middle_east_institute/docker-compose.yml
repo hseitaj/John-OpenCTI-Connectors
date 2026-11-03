@@ -5,7 +5,10 @@
 version: '3'
 services:
   middle_east_institute:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-middle-east-institute
     environment:
       # --- OpenCTI platform connection ---

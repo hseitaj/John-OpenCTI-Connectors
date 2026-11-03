@@ -5,7 +5,10 @@
 version: '3'
 services:
   arxiv:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-arxiv
     environment:
       # --- OpenCTI platform connection ---

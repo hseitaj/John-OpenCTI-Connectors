@@ -10,4 +10,10 @@ RUN pip install --no-cache-dir -r /opt/opencti-connector-gti-reports/requirement
 
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
+# Shared helpers from connectors/microservices (PDF rendering, report
+# classification). docker compose passes them as the "microservices" build
+# context; a plain build needs: docker build --build-context microservices=../microservices .
+COPY --from=microservices . /opt/shared/microservices
+ENV PYTHONPATH="/opt/shared"
+
 ENTRYPOINT ["/entrypoint.sh"]

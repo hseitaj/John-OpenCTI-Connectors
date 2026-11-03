@@ -60,6 +60,12 @@ def run_once() -> None:
     _log(f"OPENCTI_URL set? {'yes' if opencti_url else 'no'}")
     _log(f"OPENCTI_TOKEN present? {'yes' if opencti_token else 'no'}")
 
+    if not listing_url:
+        # Without this every cycle died on "Invalid URL ''" from requests.
+        _log("TNW_LISTING_URL is not set: point it at the NSA The Next Wave listing page "
+             "(see docker-compose.yml). Nothing to fetch this cycle.", level="ERROR")
+        return
+
     state = _read_state(state_path)
     known = set(state.get("known_external_ids", []))
 

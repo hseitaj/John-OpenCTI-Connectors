@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime, timezone
 from typing import Dict, Optional
 
 from pycti import OpenCTIConnectorHelper
@@ -7,7 +8,11 @@ from pycti import OpenCTIConnectorHelper
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 from microservices.classify_report import classify_report
 
-from connector import _utc_now_iso
+
+def _utc_now_iso() -> str:
+    # Local copy: importing it from connector.py made a circular import that
+    # crashed the container on start (connector.py imports this module).
+    return datetime.now(timezone.utc).isoformat()
 
 
 def create_report_from_item(helper: OpenCTIConnectorHelper, item: Dict, now_iso: Optional[str] = None) -> str:

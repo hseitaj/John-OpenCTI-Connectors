@@ -6,7 +6,10 @@
 version: '3'
 services:
   organized_crime_corruption_reporting:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-organized-crime-corruption-reporting
     environment:
       # --- OpenCTI platform connection ---

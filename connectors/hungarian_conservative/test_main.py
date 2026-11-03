@@ -16,8 +16,6 @@ if "weasyprint" not in sys.modules:
 from main import (  # noqa: E402
     HungarianConservativeConnector,
     _strip_html,
-    PDF_VARIANT_LIVE_HTML,
-    PDF_VARIANT_REST_API,
 )
 
 
