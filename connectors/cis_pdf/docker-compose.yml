@@ -1,0 +1,30 @@
+# CIA CSI Studies in Intelligence PDFs. Contains no credentials; real values go in
+# docker-compose.override.yml, which is never committed.
+version: '3'
+services:
+  cis-pdf:
+    build: .
+    container_name: opencti-connector-cis-pdf
+    environment:
+      # --- OpenCTI platform connection ---
+      - OPENCTI_URL=                    # e.g. http://opencti:8080
+      - OPENCTI_TOKEN=                  # connector service-account token
+      # --- Connector identity ---
+      - CONNECTOR_ID=                   # generate once: uuidgen
+      - CONNECTOR_RUN_INTERVAL=60       # minutes between cycles
+      # --- Source / behaviour (defaults shown) ---
+      - CIS_LISTING_URL=https://www.cia.gov/resources/csi/studies-in-intelligence/?page=1&pageSize=-1
+      - CIS_SEED_FILE=/opt/connector/seeds_urls.txt
+      - CIS_MONTHLY_CHECK_DAYS=30
+      - CIS_MAX_INGEST_PER_CYCLE=10     # 0 = no cap
+      - CIS_DOWNLOAD_TIMEOUT_SECONDS=60
+      - CIS_AUTHOR_NAME=CIA Center for Intelligence Studies
+      - CIS_REPORT_TYPE=threat-report
+      - CIS_STATE_DIR=/opt/connector/state
+      - CIS_DOWNLOAD_DIR=/opt/connector/downloads
+    volumes:
+      - cis-pdf-state:/opt/connector/state   # seed progress survives restarts
+    restart: always
+
+volumes:
+  cis-pdf-state:

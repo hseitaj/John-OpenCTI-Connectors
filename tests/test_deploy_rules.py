@@ -47,7 +47,7 @@ def uses_microservices(name: str) -> bool:
                for p in (CONNECTORS / name).rglob("*.py"))
 
 
-@pytest.mark.parametrize("name,dockerfile", dockerfiles())
+@pytest.mark.parametrize("name,dockerfile", list(dockerfiles()))
 def test_every_copy_source_exists(name, dockerfile):
     ctx = build_context(name, dockerfile)
     for line in dockerfile.read_text().splitlines():
@@ -72,7 +72,7 @@ def test_microservices_reach_the_image(name):
             f"{compose}: builds the image but does not pass the microservices build context"
 
 
-@pytest.mark.parametrize("name,dockerfile", dockerfiles())
+@pytest.mark.parametrize("name,dockerfile", list(dockerfiles()))
 def test_base_image_is_supported(name, dockerfile):
     for base in re.findall(r"^FROM\s+(\S+)", dockerfile.read_text(), re.M):
         assert "bullseye" not in base and "buster" not in base, f"{dockerfile}: Debian base past end of life: {base}"
@@ -80,7 +80,7 @@ def test_base_image_is_supported(name, dockerfile):
         assert not m or int(m.group(1)) >= 10, f"{dockerfile}: Python past end of life: {base}"
 
 
-@pytest.mark.parametrize("name,dockerfile", dockerfiles())
+@pytest.mark.parametrize("name,dockerfile", list(dockerfiles()))
 def test_playwright_matches_its_image(name, dockerfile):
     image = re.search(r"playwright/python:v([\d.]+)", dockerfile.read_text())
     if not image:
@@ -114,8 +114,14 @@ def test_compose_documents_only_variables_the_code_reads(name):
         env = service.get("environment") or []
         keys = list(env) if isinstance(env, dict) else [str(e).split("=", 1)[0].strip() for e in env]
         unread = [k for k in keys if not k.startswith(("OPENCTI_", "CONNECTOR_")) and k != "PYTHONPATH"
-                  and k not in code]
+                  and k not in code and not pydantic_field(k, code)]
         assert not unread, f"{name}/docker-compose.yml documents variables nothing reads: {unread}"
+
+
+def pydantic_field(key: str, code: str) -> bool:
+    """pydantic-settings maps PREFIX_FIELD_NAME onto a ``field_name:`` declaration (feedly)."""
+    field = key.split("_", 1)[1].lower() if "_" in key else ""
+    return bool(field) and re.search(rf"^\s+{re.escape(field)}\s*:", code, re.M) is not None
 
 
 def test_no_control_characters_in_source():

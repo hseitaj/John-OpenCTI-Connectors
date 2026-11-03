@@ -1,0 +1,20 @@
+# abuse.ch URLhaus daily feed. Contains no credentials; real values go in
+# docker-compose.override.yml, which is never committed.
+version: '3'
+services:
+  urlhaus:
+    build: .
+    container_name: opencti-connector-urlhaus
+    environment:
+      # --- OpenCTI platform connection ---
+      - OPENCTI_URL=                    # e.g. http://opencti:8080
+      - OPENCTI_TOKEN=                  # connector service-account token
+      # --- Connector identity ---
+      - CONNECTOR_ID=                   # generate once: uuidgen
+      - CONNECTOR_NAME=URLhaus
+      - CONNECTOR_SCOPE=url
+      # --- URLhaus ---
+      - URLHAUS_API_KEY=                # abuse.ch Auth-Key (required)
+      - URLHAUS_INTERVAL_HOURS=24
+      - URLHAUS_RUN_ON_STARTUP=false    # true: run a cycle at start instead of waiting a full interval
+    restart: always

@@ -1,0 +1,31 @@
+# Feedly streams. Contains no credentials; real values go in
+# docker-compose.override.yml, which is never committed.
+version: '3'
+services:
+  feedly:
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
+    container_name: opencti-connector-feedly
+    environment:
+      # --- OpenCTI platform connection ---
+      - OPENCTI_URL=                    # e.g. http://opencti:8080
+      - OPENCTI_TOKEN=                  # connector service-account token
+      # --- Connector identity ---
+      - CONNECTOR_ID=                   # generate once: uuidgen
+      - CONNECTOR_NAME=Feedly
+      - CONNECTOR_SCOPE=feedly
+      - CONNECTOR_LOG_LEVEL=error
+      # --- Feedly ---
+      - FEEDLY_API_KEY=                 # https://feedly.com/i/team/api
+      - FEEDLY_STREAM_IDS=              # comma-separated stream ids
+      - FEEDLY_INTERVAL=60              # minutes
+      - FEEDLY_DAYS_TO_BACK_FILL=7
+      - FEEDLY_MARKING=TLP:CLEAR
+      - FEEDLY_CONFIDENCE=50
+      - FEEDLY_ATTACH_PDF=true
+      - FEEDLY_PDF_TIMEOUT=30
+      - FEEDLY_PDF_RENDER_TIMEOUT=120
+      - FEEDLY_PDF_MAX_MB=12
+    restart: always

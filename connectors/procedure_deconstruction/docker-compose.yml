@@ -1,0 +1,20 @@
+# Procedure deconstruction enrichment (runs on Reports). Contains no credentials; real values go in
+# docker-compose.override.yml, which is never committed.
+version: '3'
+services:
+  procedure-deconstruction:
+    build: .
+    container_name: opencti-connector-procedure-deconstruction
+    environment:
+      # --- OpenCTI platform connection ---
+      - OPENCTI_URL=                    # e.g. http://opencti:8080
+      - OPENCTI_TOKEN=                  # connector service-account token
+      # --- Connector identity ---
+      - CONNECTOR_ID=                   # generate once: uuidgen
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=Procedure Deconstruction
+      - CONNECTOR_SCOPE=Report
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_CONFIDENCE_LEVEL=0
+      - MAX_FIRST=500                   # page size for platform queries
+    restart: always
