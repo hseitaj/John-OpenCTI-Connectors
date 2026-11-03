@@ -657,7 +657,11 @@ class NewsAPIConnector:
         if name in self._sector_cache:
             return self._sector_cache[name]
         try:
-            res = self.helper.api.sector.list(
+            # pycti has no api.sector: sectors are identities of type "Sector".
+            # The old call raised AttributeError, so no report was ever linked
+            # to a sector.
+            res = self.helper.api.identity.list(
+                types=["Sector"],
                 first=1,
                 filters={
                     "mode": "and",
@@ -671,7 +675,7 @@ class NewsAPIConnector:
             if entities:
                 self._sector_cache[name] = entities[0]["id"]
                 return entities[0]["id"]
-            created = self.helper.api.sector.create(name=name)
+            created = self.helper.api.identity.create(type="Sector", name=name)
             self._sector_cache[name] = created["id"]
             return created["id"]
         except Exception as e:

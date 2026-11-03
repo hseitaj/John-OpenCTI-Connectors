@@ -7,7 +7,7 @@ and records everything a connector would write.
 | Check | What it proves | Network | Runs in CI |
 |---|---|---|---|
 | **Boot** (`test_boot.py`) | The connector starts through its real entrypoint: config loads, the helper is built, graph references resolve, and it reaches its source or registers its listener with no error. | blocked | yes |
-| **Deploy rules** (`test_deploy_rules.py`) | Dockerfiles copy only files that exist, ship the shared `microservices` package, use supported base images, pin Playwright to the image's browsers and pycti to the platform (6.9.13); compose files document only variables the code reads. | none | yes |
+| **Deploy rules** (`test_deploy_rules.py`) | Dockerfiles copy only files that exist, ship the shared `microservices` package, use supported base images, pin Playwright to the image's browsers and pycti to the platform (7.261103.0); compose files document only variables the code reads. | none | yes |
 | **Image** (`image_probe.py`) | The built image imports its entrypoint, inside the container, with no network. | none | yes, for connectors a PR changes (all on manual dispatch) |
 | **Live** (`run_connector.py --mode live`) | One real cycle against the real source: fetch, parse, render, write. Stops after two reports or bundles. | real | no (manual) |
 

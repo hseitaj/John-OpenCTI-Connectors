@@ -22,7 +22,7 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 CONNECTORS = ROOT / "connectors"
 REGISTRY = json.loads((ROOT / "tests" / "connectors.json").read_text())
-PLATFORM_PYCTI = "6.9.13"
+PLATFORM_PYCTI = "7.261103.0"
 ACTIVE = sorted(n for n, spec in REGISTRY.items() if "skip" not in spec)
 
 
