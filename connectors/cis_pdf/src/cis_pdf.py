@@ -179,6 +179,7 @@ class CISPdfConnector:
         self.seed_file = Path(self.cfg.seed_file_path)
         self.download_path = Path(self.cfg.download_dir)
         self.state = StateStore(Path(self.cfg.state_dir), self.log)
+        self._gone_urls: set = set()  # seed URLs that answered 404/410 this run
 
         self.log.info(
             "cis_pdf_connector initialized (full scope)",
@@ -293,7 +294,13 @@ class CISPdfConnector:
             self.log.info("Downloaded PDF", {"url": url, "path": str(out_path), "bytes": out_path.stat().st_size, "sha256": sha})
             return out_path
         except HTTPError as e:
-            self.log.error("HTTP error downloading PDF", {"url": url, "status": getattr(e, "code", None), "reason": str(e)})
+            status = getattr(e, "code", None)
+            if status in (404, 410):
+                # Gone for good; record it so the seed walk can move past it.
+                self._gone_urls.add(url)
+                self.log.warning("PDF no longer exists at its URL", {"url": url, "status": status})
+            else:
+                self.log.error("HTTP error downloading PDF", {"url": url, "status": status, "reason": str(e)})
         except URLError as e:
             self.log.error("URL error downloading PDF", {"url": url, "reason": str(e)})
         except Exception as e:
@@ -491,7 +498,7 @@ class CISPdfConnector:
 
         pdf_path = self.download_pdf(url)
         if pdf_path is None:
-            return (False, "download_failed")
+            return (False, "gone" if url in self._gone_urls else "download_failed")
 
         ref_id = self.create_external_reference(
             source_name="CIA CSI Studies in Intelligence",
@@ -661,9 +668,17 @@ class CISPdfConnector:
                 # reduce log spam for "already_ingested"
                 if reason != "already_ingested":
                     self.log.info("Seed ingest item ok", {"url": u, "reason": reason})
+            elif reason == "gone":
+                # A 404/410 seed can never succeed. Stopping here (as for transient
+                # errors) pinned the cursor on the first dead link forever, so no
+                # later seed was ever ingested. Skip it and keep going.
+                cursor += 1
+                self.state.seed_cursor = cursor
+                self.state.save()
+                self.log.warning("Skipping seed that no longer exists", {"url": u})
             else:
                 self.log.warning(f"Failed to ingest {u}, will retry next run", {"reason": reason})
-                break  # stop advancing, retry from this point
+                break  # transient failure: stop advancing, retry from this point
 
         if cursor >= len(urls):
             self.state.seed_complete = True

@@ -192,11 +192,9 @@ class ObsidianExportConnector:
         )
 
         try:
-            if work_id:
-                self.helper.api.work.to_progress(
-                    work_id=work_id,
-                    message="Fetching container graph from OpenCTI",
-                )
+            # pycti has no work.to_progress (this call raised AttributeError and
+            # failed every export before it started); progress goes to the log.
+            self.helper.log_info("Fetching container graph from OpenCTI")
 
             container_data = self.graph_fetcher.fetch_container(
                 entity_id=entity_id,
@@ -206,11 +204,7 @@ class ObsidianExportConnector:
 
             n_types = len(container_data.get("objects_by_type", {}))
             n_rels = len(container_data.get("relationships", []))
-            if work_id:
-                self.helper.api.work.to_progress(
-                    work_id=work_id,
-                    message=f"Building note — {n_types} entity types, {n_rels} relationships",
-                )
+            self.helper.log_info(f"Building note — {n_types} entity types, {n_rels} relationships")
 
             md_content = self.note_builder.build_note(container_data)
 

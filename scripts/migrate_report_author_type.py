@@ -67,7 +67,7 @@ try:
 except ImportError:  # pragma: no cover - environment guard
     sys.stderr.write(
         "pycti is not installed. Install the pinned version with:\n"
-        "    pip install pycti==6.9.13\n"
+        "    pip install pycti==7.261103.0\n"
     )
     raise
 

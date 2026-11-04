@@ -6,7 +6,10 @@
 version: '3'
 services:
   international_institute_for_strategic_studies:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-iiss-strategic-studies
     environment:
       # --- OpenCTI platform connection ---

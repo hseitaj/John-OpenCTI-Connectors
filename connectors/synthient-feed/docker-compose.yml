@@ -1,0 +1,31 @@
+# Synthient anonymizer feed. Contains no credentials; real values go in
+# docker-compose.override.yml, which is never committed.
+version: '3'
+services:
+  synthient-feed:
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
+    container_name: opencti-connector-synthient-feed
+    environment:
+      # --- OpenCTI platform connection ---
+      - OPENCTI_URL=                    # e.g. http://opencti:8080
+      - OPENCTI_TOKEN=                  # connector service-account token
+      # --- Connector identity ---
+      - CONNECTOR_ID=                   # generate once: uuidgen
+      - CONNECTOR_NAME=Synthient Feed
+      - CONNECTOR_SCOPE=IPv4-Addr,IPv6-Addr
+      - CONNECTOR_LOG_LEVEL=info
+      # --- Synthient ---
+      - SYNTHIENT_API_KEY=              # required
+      - SYNTHIENT_INTERVAL=86400        # seconds
+      - SYNTHIENT_FEED_LAST_OBSERVED=7D
+      - SYNTHIENT_FEED_MAX_IPS=5000
+      - SYNTHIENT_FEED_CATEGORIES=
+      - SYNTHIENT_FEED_PROVIDERS=
+      - SYNTHIENT_FEED_COUNTRY_CODES=
+      - SYNTHIENT_INCLUDE_BLACKLIST=true
+      - SYNTHIENT_CONFIDENCE=90
+      - SYNTHIENT_TLP=TLP:AMBER+STRICT
+    restart: always

@@ -664,18 +664,18 @@ def _smart_parse_malware_candidates(
     # Pattern A: [NAME] [optional platform] [malware_type]
     # e.g. "BEANSTALK Android backdoor", "YEPCATCH dataminer"
     _type_re = re.compile(
-        r"(?P<name>[A-Z][A-Z0-9_\-]{2,30})"          # ALL_CAPS or Mixed name
+        r"\b(?P<name>[A-Z][A-Z0-9_\-]{2,30})"          # ALL_CAPS or Mixed name
         r"(?:\s+(?:" + "|".join(_PLATFORM_QUALIFIERS) + r"))?"  # optional platform
-        r"\s+(?:" + "|".join(re.escape(t) for t in _MALWARE_TYPES) + r")",
+        r"\s+(?:" + "|".join(re.escape(t) for t in _MALWARE_TYPES) + r")\b",
         re.IGNORECASE,
     )
 
     # Pattern B: [malware_type] called/named/dubbed/known as [NAME]
     # e.g. "a backdoor called DARKPULSAR", "malware dubbed WannaCry"
     _called_re = re.compile(
-        r"(?:" + "|".join(re.escape(t) for t in _MALWARE_TYPES) + r")"
+        r"\b(?:" + "|".join(re.escape(t) for t in _MALWARE_TYPES) + r")"
         r"\s+(?:called|named|dubbed|tracked as|known as|designated)\s+"
-        r"(?:the\s+)?(?P<name>[A-Z][A-Z0-9_\-]{2,30})",
+        r"(?:the\s+)?(?P<name>[A-Z][A-Z0-9_\-]{2,30})\b",
         re.IGNORECASE,
     )
 

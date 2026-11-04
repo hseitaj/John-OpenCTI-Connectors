@@ -1,0 +1,28 @@
+# Everything the connectors import, so tests/ can boot all of them in one
+# environment. pycti must match the platform (6.9.13), as in every connector.
+pycti==7.261103.0
+connectors-sdk @ git+https://github.com/OpenCTI-Platform/connectors.git@7.261103.0#subdirectory=connectors-sdk
+beautifulsoup4
+boto3
+crowdstrike-falconpy
+curl_cffi
+edgegrid-python
+feedly-client
+feedparser
+lxml
+markdown
+pdf2image
+pillow
+playwright==1.49.0
+plyara
+pycountry
+PyPDF2
+pytesseract
+python-dateutil
+pyyaml
+requests
+schedule
+tenacity
+trafilatura
+weasyprint==63.1  # microservices/make_pdf.py uses the pre-70 url_fetcher API
+pytest

@@ -5,7 +5,10 @@
 version: '3'
 services:
   tlp-black:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-tlp-black
     environment:
       # --- OpenCTI platform connection ---

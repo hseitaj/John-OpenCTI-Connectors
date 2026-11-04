@@ -1,6 +1,6 @@
-pycti==6.9.13
+pycti==7.261103.0
 pyyaml
 requests
-weasyprint
+weasyprint==63.1
 beautifulsoup4
 lxml

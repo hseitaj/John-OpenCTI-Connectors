@@ -116,6 +116,26 @@ def _strip_html(value):
     return html_mod.unescape(re.sub(r"<[^>]+>", "", value)).strip()
 
 
+
+_ESCAPED_CDATA = re.compile(r"(<content:encoded>)\s*&lt;!\[CDATA\[(.*?)\]\]&gt;\s*(</content:encoded>)", re.S)
+
+
+def _repair_double_escaped_cdata(xml_text):
+    """Undo the feed's double escaping of content:encoded.
+
+    Since late 2026 the Defense One feed escapes the CDATA wrapper itself
+    (``&lt;![CDATA[&lt;p&gt;...]]&gt;``). feedparser then sees text, its
+    sanitizer strips it, and every entry arrived with empty content: each run
+    logged "No content:encoded" for all items and ingested nothing. Re-wrap the
+    unescaped HTML in a real CDATA section; well-formed feeds are untouched.
+    """
+    def fix(m):
+        body = html_mod.unescape(m.group(2)).replace("]]>", "]]]]><![CDATA[>")
+        return f"{m.group(1)}<![CDATA[{body}]]>{m.group(3)}"
+
+    return _ESCAPED_CDATA.sub(fix, xml_text)
+
+
 class DefenseOneConnector:
     """External-import connector that mirrors Defense One articles into Reports."""
 
@@ -264,7 +284,7 @@ class DefenseOneConnector:
                     f"RSS feed returned HTTP {resp.status_code}; skipping this cycle."
                 )
                 return None
-            feed = feedparser.parse(resp.text)
+            feed = feedparser.parse(_repair_double_escaped_cdata(resp.text))
             if feed.bozo and not feed.entries:
                 self.helper.log_error(
                     f"RSS feed parse error: {feed.bozo_exception}; skipping this cycle."

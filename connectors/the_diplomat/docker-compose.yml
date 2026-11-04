@@ -5,7 +5,10 @@
 version: '3'
 services:
   the_diplomat:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-the-diplomat
     environment:
       # --- OpenCTI platform connection ---

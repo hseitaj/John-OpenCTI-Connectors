@@ -5,7 +5,10 @@
 version: '3'
 services:
   sans_institute:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-sans-institute
     environment:
       # --- OpenCTI platform connection ---
@@ -18,7 +21,6 @@ services:
       - CONNECTOR_SCOPE=sans_institute
       - CONNECTOR_LOG_LEVEL=info
       # --- Source / behaviour (non-sensitive; defaults shown) ---
-      - SANS_INSTITUTE_BASE_URL=https://www.sans.org
       - SANS_INSTITUTE_SITEMAP_URL=https://www.sans.org/sitemaps/blogs.xml
       - SANS_INSTITUTE_POLL_INTERVAL=86400         # seconds between enumeration runs (24h)
       - SANS_INSTITUTE_REQUEST_DELAY=2             # seconds between requests

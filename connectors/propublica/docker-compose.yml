@@ -5,7 +5,10 @@
 version: '3'
 services:
   propublica:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-propublica
     environment:
       # --- OpenCTI platform connection ---

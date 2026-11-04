@@ -1,0 +1,326 @@
+{
+ "404media": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "Bellingcat": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "CrowdStrikeIntelReports": {
+  "entry": "src/main.py",
+  "container": "/opt/opencti-connector-crowdstrike-intel-reports/main.py",
+  "platform_has": [
+   "stix_domain_object"
+  ],
+  "note": "expects an Organization named 'CrowdStrike' in the platform; refuses to start otherwise"
+ },
+ "ObservableGate": {
+  "entry": "src/main.py",
+  "container": "/opt/opencti-connector-observable-gate/src/main.py"
+ },
+ "ObsidianExport": {
+  "entry": "connector.py",
+  "container": "/app/connector.py"
+ },
+ "advaticanum": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "akamai_ddos": {
+  "entry": "src/main.py",
+  "container": "/opt/connector/src/main.py",
+  "module": "src.main",
+  "env": {
+   "AKAMAI_HOST": "akab-test.luna.akamaiapis.net",
+   "AKAMAI_PROLEXIC_CONTRACT": "TEST-CONTRACT",
+   "AKAMAI_SIEM_CONFIG_IDS": "12345"
+  }
+ },
+ "arxiv": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "brookings_institution": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "carnegie_endowment": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "ccdcoe": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "chalkbeat": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "cis_pdf": {
+  "entry": "src/main.py",
+  "container": "/opt/connector/src/main.py",
+  "env": {
+   "CIS_SEED_FILE": "{dir}/seeds_urls.txt",
+   "CIS_STATE_DIR": "{tmp}/state",
+   "CIS_DOWNLOAD_DIR": "{tmp}/downloads"
+  }
+ },
+ "connector-ic-reports": {
+  "entry": "src/main.py",
+  "container": "/opt/opencti-connector/main.py",
+  "path_map": {
+   "/opt/opencti-connector/config.yml": "config.yml"
+  }
+ },
+ "crowdstrike-true-detections": {
+  "entry": "src/main.py",
+  "container": "/opt/opencti-connector-crowdstrike-true-detections/main.py",
+  "platform_has": [
+   "identity"
+  ],
+  "note": "expects the CrowdStrike organization and a 'Crowdstrike Endpoint Detection' identity in the platform; refuses to start otherwise"
+ },
+ "defense_one": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "dfir_report": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "feedly": {
+  "entry": "main.py",
+  "container": "/opt/opencti-feedly-connector/main.py",
+  "env": {
+   "FEEDLY_API_KEY": "test-feedly-api-key",
+   "FEEDLY_STREAM_IDS": "user/test/category/test"
+  }
+ },
+ "gti": {
+  "entry": "src/gti.py",
+  "container": "/opt/opencti-connector-gti-reports/gti.py"
+ },
+ "hellenic_shipping_news": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "hungarian_conservative": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "insightcrime": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "international_institute_for_strategic_studies": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "jamestown": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "johns_hopkins_public_health": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "malware_bazaar": {
+  "entry": "src/main.py",
+  "container": "/opt/opencti-connector-malwarebazaar/main.py"
+ },
+ "microsoft_security_research": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "middle_east_institute": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "migration_policy_institute": {
+  "entry": "main.py",
+  "container": "/app/main.py",
+  "env": {
+   "MPI_MAX_REPORTS": "1"
+  }
+ },
+ "newsapi_connector": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "nsa_tnw": {
+  "entry": "src/connector.py",
+  "container": "/opt/connector/src/connector.py",
+  "env": {
+   "TNW_LISTING_URL": "https://www.nsa.gov/Research/The-Next-Wave/",
+   "NSA_STATE_PATH": "{tmp}/state.json"
+  }
+ },
+ "openalex_import": {
+  "skip": "empty Dockerfile, connector.py and docker-compose.yml (unfinished skeleton)"
+ },
+ "opencti-cve-connector": {
+  "entry": "src/main.py",
+  "container": "/opt/opencti-connector-cve/main.py"
+ },
+ "openphish": {
+  "entry": "src/main.py",
+  "container": "/home/openphish/src/main.py",
+  "platform_has": [
+   "attack_pattern"
+  ],
+  "note": "expects MITRE ATT&CK (T1566.002) already in the platform; exits otherwise"
+ },
+ "organized_crime_corruption_reporting": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "procedure_deconstruction": {
+  "entry": "src/connector.py",
+  "container": "/opt/connector/src/connector.py"
+ },
+ "propublica": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "qns": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "regional_cybersecurity": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "report_enrichment": {
+  "entry": "src/connector.py",
+  "container": "/app/src/connector.py",
+  "assemble": [
+   [
+    "report_model_qa/src/util/graph.py",
+    "util/graph.py"
+   ],
+   [
+    "report_model_qa/src/util/entity_kb.py",
+    "util/entity_kb.py"
+   ],
+   [
+    "report_model_qa/src/util/relationship_policy.py",
+    "util/relationship_policy.py"
+   ],
+   [
+    "report_model_qa/src/util/note_gql.py",
+    "util/note_gql.py"
+   ],
+   [
+    "report_enrichment/src/util/defang.py",
+    "util/defang.py"
+   ],
+   [
+    "report_model_qa/src/util/graph.py",
+    "qa/graph.py"
+   ],
+   [
+    "report_model_qa/src/util/entity_kb.py",
+    "qa/entity_kb.py"
+   ],
+   [
+    "report_model_qa/src/util/relationship_policy.py",
+    "qa/relationship_policy.py"
+   ],
+   [
+    "report_model_qa/src/util/note_gql.py",
+    "qa/note_gql.py"
+   ],
+   [
+    "report_model_qa/src/rules/pdf_suggestions.py",
+    "qa/pdf_suggestions.py"
+   ],
+   [
+    "report_model_qa/src/rules/reconciliation.py",
+    "qa/reconciliation.py"
+   ],
+   [
+    "report_enrichment/src/",
+    "src/"
+   ]
+  ],
+  "assemble_touch": [
+   "util/__init__.py",
+   "qa/__init__.py"
+  ],
+  "assemble_remove": [
+   "src/util"
+  ]
+ },
+ "report_model_qa": {
+  "entry": "src/connector.py",
+  "container": "/opt/connector/src/connector.py"
+ },
+ "sans_institute": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "sciencedaily": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "southern_poverty_law_center": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "synthient-enrich": {
+  "entry": "connector.py",
+  "container": "/app/connector.py"
+ },
+ "synthient-feed": {
+  "entry": "connector.py",
+  "container": "/app/connector.py",
+  "env": {
+   "SYNTHIENT_API_KEY": "test-synthient-api-key"
+  }
+ },
+ "team_cymru_scout": {
+  "entry": "src/main.py",
+  "container": "/opt/opencti-connector-team-cymru-scout/main.py"
+ },
+ "the_diplomat": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "threatfox": {
+  "entry": "src/main.py",
+  "container": "/opt/connector/src/main.py",
+  "module": "src.main"
+ },
+ "tlp_black": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "trellix_blog": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "unit42": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "urlhaus": {
+  "entry": "src/main.py",
+  "container": "/app/main.py",
+  "env": {
+   "URLHAUS_RUN_ON_STARTUP": "true"
+  }
+ },
+ "usnews": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ },
+ "virustotal": {
+  "entry": "src/main.py",
+  "container": "/opt/opencti-connector-virustotal/main.py"
+ },
+ "world_health_organization": {
+  "entry": "main.py",
+  "container": "/app/main.py"
+ }
+}

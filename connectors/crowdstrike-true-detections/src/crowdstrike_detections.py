@@ -11,7 +11,7 @@ import traceback
 from falconpy import (
     Detects,
 )
-from pycti import OpenCTIConnectorHelper
+from pycti import Identity, OpenCTIConnectorHelper
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 from microservices.classify_report import classify_report
@@ -140,13 +140,19 @@ class CrowdStrikeDetectionsConnector:
                 f"'author_name' = '{author_name}'"
             )
 
-        _author = self.helper.api.identity.read(
-            filters={
-                "mode": "and",
-                "filters": [{"key": "name", "values": author_name}],
-                "filterGroups": [],
-            }
-        )
+        # Organization identity IDs are derived from the lower-cased name, so this
+        # finds "CrowdStrike" whichever way it is capitalised (the CrowdStrike Intel
+        # Reports connector requires it as "CrowdStrike"; this one asked for
+        # "Crowdstrike" by exact name). Fall back to the name for other kinds.
+        _author = self.helper.api.identity.read(id=Identity.generate_id(author_name, "organization"))
+        if _author is None:
+            _author = self.helper.api.identity.read(
+                filters={
+                    "mode": "and",
+                    "filters": [{"key": "name", "values": author_name}],
+                    "filterGroups": [],
+                }
+            )
 
         if _author is None:
             self.helper.log_error(

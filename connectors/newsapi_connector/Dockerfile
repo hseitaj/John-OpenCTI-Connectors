@@ -19,4 +19,10 @@ COPY . .
 
 # Persistent state (cursors, daily budget, dedup cache) is mounted here.
 RUN mkdir -p /app/state
+# Shared helpers from connectors/microservices (PDF rendering, report
+# classification). docker compose passes them as the "microservices" build
+# context; a plain build needs: docker build --build-context microservices=../microservices .
+COPY --from=microservices . /opt/shared/microservices
+ENV PYTHONPATH="/opt/shared"
+
 CMD ["python", "main.py"]

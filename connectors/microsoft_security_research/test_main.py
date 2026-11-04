@@ -254,25 +254,28 @@ class TestFetchPage:
 
 
 class TestRenderWithRetry:
+    # Rendering moved to the shared microservices.make_pdf.render_page_to_pdf;
+    # patch it where main.py looks it up.
     def test_success_first_try(self, connector):
-        connector._render_pdf = MagicMock(return_value=b"pdf-bytes")
-        result = connector._render_with_retry(MagicMock(), "https://example.com/")
+        with patch("main.render_page_to_pdf", return_value=b"pdf-bytes") as render, \
+                patch("main.time.sleep"):
+            result = connector._render_with_retry(MagicMock(), "https://example.com/")
         assert result == b"pdf-bytes"
-        assert connector._render_pdf.call_count == 1
+        assert render.call_count == 1
 
     def test_retries_on_failure(self, connector):
-        connector._render_pdf = MagicMock(
-            side_effect=[RuntimeError("timeout"), b"pdf-bytes"]
-        )
-        result = connector._render_with_retry(MagicMock(), "https://example.com/")
+        with patch("main.render_page_to_pdf", side_effect=[RuntimeError("timeout"), b"pdf-bytes"]) as render, \
+                patch("main.time.sleep"):
+            result = connector._render_with_retry(MagicMock(), "https://example.com/")
         assert result == b"pdf-bytes"
-        assert connector._render_pdf.call_count == 2
+        assert render.call_count == 2
 
     def test_exhausts_retries(self, connector):
-        connector._render_pdf = MagicMock(side_effect=RuntimeError("fail"))
-        result = connector._render_with_retry(MagicMock(), "https://example.com/")
+        with patch("main.render_page_to_pdf", side_effect=RuntimeError("fail")) as render, \
+                patch("main.time.sleep"):
+            result = connector._render_with_retry(MagicMock(), "https://example.com/")
         assert result is None
-        assert connector._render_pdf.call_count == 3
+        assert render.call_count == connector.render_retries
 
 
 class TestIngestPost:

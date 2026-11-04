@@ -2,7 +2,7 @@ version: "3"
 services:
   report_enrichment:
     build:
-      # Build context is connectors/custom/ so the Dockerfile can access
+      # Build context is connectors/ so the Dockerfile can access
       # both report_enrichment/ and the shared report_model_qa/ modules.
       context: ..
       dockerfile: report_enrichment/Dockerfile

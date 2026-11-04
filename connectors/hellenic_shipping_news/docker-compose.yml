@@ -5,7 +5,10 @@
 version: '3'
 services:
   hellenic_shipping_news:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-hellenic-shipping-news
     environment:
       # --- OpenCTI platform connection ---

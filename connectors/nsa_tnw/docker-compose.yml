@@ -1,0 +1,36 @@
+# NSA The Next Wave reports. Contains no credentials; real values go in
+# docker-compose.override.yml, which is never committed.
+version: '3'
+services:
+  nsa-tnw:
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
+    container_name: opencti-connector-nsa-tnw
+    environment:
+      # --- OpenCTI platform connection ---
+      - OPENCTI_URL=                    # e.g. http://opencti:8080
+      - OPENCTI_TOKEN=                  # connector service-account token
+      # --- Connector identity ---
+      - CONNECTOR_ID=                   # generate once: uuidgen
+      - CONNECTOR_RUN_INTERVAL=60       # minutes between cycles
+      # --- Source / behaviour (defaults shown) ---
+      - TNW_LISTING_URL=                # required: NSA The Next Wave listing page
+      - TNW_MAX_INGEST_PER_CYCLE=30
+      - TNW_MIN_SECONDS_BETWEEN_REQUESTS=10
+      - TNW_JITTER_SECONDS=5
+      - TNW_PDF_TIMEOUT=30
+      - TNW_USER_AGENT=Mozilla/5.0 (compatible; OpenCTI-NSA-TNW/1.0)
+      - TNW_REPORT_PREFIX=NSA TNW
+      - TNW_REPORT_TYPE=technical-report
+      - TNW_REPORT_AUTHOR=NSA/CSS
+      - TNW_REPORT_MARKING_DEFINITION_NAME=TLP:CLEAR
+      - TNW_CONFIDENCE_LEVEL=15
+      - NSA_STATE_PATH=/opt/connector/state/state.json
+    volumes:
+      - nsa-tnw-state:/opt/connector/state
+    restart: always
+
+volumes:
+  nsa-tnw-state:

@@ -5,7 +5,10 @@
 version: '3'
 services:
   world_health_organization:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-world-health-organization
     environment:
       # --- OpenCTI platform connection ---

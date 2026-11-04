@@ -1,6 +1,9 @@
 services:
   connector-threatfox:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     restart: unless-stopped
     environment:
       - OPENCTI_URL=${OPENCTI_URL:-http://opencti:8080}

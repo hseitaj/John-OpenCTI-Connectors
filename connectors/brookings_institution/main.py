@@ -101,7 +101,9 @@ MAX_PDF_BYTES = 50 * 1024 * 1024  # 50 MB
 FOREIGN_POLICY_TOPIC_ID = 69
 
 # Fields for the lightweight listing pass (no ACF content).
-LISTING_FIELDS = "id,title,link,date_gmt,modified_gmt,topics,excerpt"
+# Topics moved from the top-level "topics" field to acf.helper_taxonomies.topics
+# (late 2026); request both so either API shape works.
+LISTING_FIELDS = "id,title,link,date_gmt,modified_gmt,topics,excerpt,acf.helper_taxonomies.topics"
 
 def _strip_html(value):
     """Remove HTML tags and unescape entities from a string."""
@@ -109,6 +111,16 @@ def _strip_html(value):
         return ""
     return html_mod.unescape(re.sub(r"<[^>]+>", "", value)).strip()
 
+
+
+def _topics(article):
+    """Topic IDs of a WP article: top-level "topics" (old API) or acf.helper_taxonomies.topics."""
+    topics = article.get("topics")
+    if not isinstance(topics, list) or not topics:
+        acf = article.get("acf") if isinstance(article.get("acf"), dict) else {}
+        helper = acf.get("helper_taxonomies") if isinstance(acf.get("helper_taxonomies"), dict) else {}
+        topics = helper.get("topics")
+    return [int(t) for t in topics if str(t).isdigit()] if isinstance(topics, list) else []
 
 class BrookingsInstitutionConnector:
     """External-import connector that mirrors Brookings foreign-policy articles into Reports."""
@@ -387,10 +399,7 @@ class BrookingsInstitutionConnector:
     @staticmethod
     def _is_foreign_policy(article):
         """Return True if the article belongs to the foreign-policy topic."""
-        topics = article.get("topics")
-        if not topics or not isinstance(topics, list):
-            return False
-        return FOREIGN_POLICY_TOPIC_ID in topics
+        return FOREIGN_POLICY_TOPIC_ID in _topics(article)
 
     @staticmethod
     def _is_podcast(article):
@@ -565,6 +574,7 @@ class BrookingsInstitutionConnector:
         processed = 0
         skipped = 0
         filtered_podcast = 0
+        off_topic = 0
         no_content = 0
         failed = 0
         stop = False
@@ -621,6 +631,7 @@ class BrookingsInstitutionConnector:
 
                     # Filter: only foreign-policy articles (topic 69).
                     if not self._is_foreign_policy(listing):
+                        off_topic += 1
                         self._save_cursor(page_num, idx + 1, window_after)
                         continue
 
@@ -715,9 +726,16 @@ class BrookingsInstitutionConnector:
                 time.sleep(self.request_delay)
 
         finally:
+            if off_topic and not (processed or skipped or filtered_podcast or no_content or failed):
+                # Every article failed the topic filter: almost certainly the API
+                # moved the topic data again (it did once, and runs ingested
+                # nothing for weeks without a single error).
+                self.helper.log_warning(
+                    f"All {off_topic} articles failed the foreign-policy topic filter; "
+                    f"check where the WP API now exposes topic IDs.")
             message = (
                 f"Run complete: {processed} created, {skipped} already present, "
-                f"{filtered_podcast} filtered (podcast), "
+                f"{off_topic} not foreign policy, {filtered_podcast} filtered (podcast), "
                 f"{no_content} skipped (no ACF content), {failed} failed."
             )
             self.helper.api.work.to_processed(work_id, message)

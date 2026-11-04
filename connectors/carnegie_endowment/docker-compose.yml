@@ -6,7 +6,10 @@
 version: '3'
 services:
   carnegie_endowment:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-carnegie-endowment
     environment:
       # --- OpenCTI platform connection ---

@@ -3,7 +3,10 @@
 # values via a local docker-compose.override.yml (never committed).
 services:
   connector-newsapi:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     image: newsapi_connector:latest
     container_name: opencti-connector-newsapi
     restart: always

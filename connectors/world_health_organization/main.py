@@ -299,7 +299,9 @@ class WorldHealthOrganizationConnector:
             "$orderby": "PublicationDateAndTime asc",
             "$top": str(ODATA_PAGE_SIZE),
             "$skip": str(skip),
-            "$select": "Title,ItemDefaultUrl,PublicationDateAndTime,Summary",
+            # WHO's API dropped the Summary property (late 2026); selecting it made
+            # every request fail with HTTP 400 and the connector ingested nothing.
+            "$select": "Title,ItemDefaultUrl,PublicationDateAndTime",
         }
         if cursor_date:
             params["$filter"] = f"PublicationDateAndTime ge {cursor_date}"

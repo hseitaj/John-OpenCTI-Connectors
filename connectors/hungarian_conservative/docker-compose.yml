@@ -5,7 +5,10 @@
 version: '3'
 services:
   hungarian_conservative:
-    build: .
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
     container_name: opencti-connector-hungarian-conservative
     environment:
       # --- OpenCTI platform connection ---

@@ -1,0 +1,26 @@
+# IC Reports connector. Contains no credentials; real values go in
+# docker-compose.override.yml, which is never committed.
+#
+# The connector reads its plugin settings from a mounted config.yml
+# (cp config.yml.template config.yml, then edit). Platform values below
+# override the file.
+version: '3'
+services:
+  connector-ic-reports:
+    build:
+      context: .
+      additional_contexts:
+        microservices: ../microservices
+    container_name: opencti-connector-ic-reports
+    volumes:
+      - ./config.yml:/opt/opencti-connector/config.yml:ro
+    environment:
+      - OPENCTI_URL=                    # e.g. http://opencti:8080
+      - OPENCTI_TOKEN=                  # connector service-account token
+      - CONNECTOR_ID=                   # generate once: uuidgen
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=IC Reports
+      - CONNECTOR_SCOPE=application/pdf
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_DURATION_PERIOD=P1D
+    restart: always
